@@ -1,0 +1,24 @@
+# Python bytecode and build output
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Virtual environment
+.venv/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# Local configuration (.env.example is committed)
+.env
+
+# macOS
+.DS_Store
+
+# Run logs, rewritten on every run
+results/*.log
