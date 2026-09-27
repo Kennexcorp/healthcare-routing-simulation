@@ -1,0 +1,4 @@
+scenario_a,scenario_b,mean_difference,ci_lower,ci_upper,pairs_favouring_a,n_pairs
+ai_integrated,static_priority,-14.04816254375489,-22.23658993340108,-5.859735154108698,9,10
+ai_integrated,unprioritised,-19.04329646578158,-27.813536452780937,-10.273056478782223,9,10
+static_priority,unprioritised,-4.995133922026691,-14.098839826295603,4.108571982242221,8,10
