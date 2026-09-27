@@ -45,7 +45,9 @@ visit.
 | `src/trigger.py`            | `ANDGateTrigger`                                                                   |
 | `src/simulation.py`         | `SimulationState`, `Simulation`, `ReplicationManager`                          |
 | `src/analysis.py`           | `StatisticalAnalyser`, `SensitivityAnalysis`, `ResultsExporter`                |
-| `scripts/capacity_sweep.py` | Standalone script measuring baseline coverage across cohort sizes                    |
+| `scripts/capacity_sweep.py` | Baseline coverage across cohort sizes, used to choose the cohort size                |
+| `scripts/gate_diagnostics.py` | Re-runs the AI-integrated scenario, counting each AND-gate condition separately    |
+| `scripts/supplementary_statistics.py` | Paired confidence intervals and high-risk patients per shift, from existing outputs |
 | `tests/`                    | One `test_*.py` module per `src/` module                                          |
 | `models/`                   | Fitted risk classifier used for the reported results                                 |
 | `results/`                  | Generated CSVs, dissertation artefacts                                               |
@@ -110,6 +112,20 @@ SIM_INITIAL_SOLVE_LIMIT=5 SIM_REROUTE_SOLVE_LIMIT=2 \
 uv run python main.py --stage simulate
 ```
 
+### Supplementary scripts
+
+Three scripts add outputs used alongside the pipeline. Each needs only the
+outputs of the four stages and writes its CSV under `results/`:
+
+```bash
+uv run python scripts/capacity_sweep.py           # baseline coverage by cohort size
+uv run python scripts/supplementary_statistics.py # paired intervals, high-risk incidence (seconds)
+uv run python scripts/gate_diagnostics.py         # per-condition gate counts (about 48 minutes)
+```
+
+The run time for `gate_diagnostics.py` was measured on the machine that
+produced the reported results.
+
 ## Results
 
 ### CSV files (`results/`)
@@ -117,12 +133,15 @@ uv run python main.py --stage simulate
 | File                         | Contents                                                                            |
 | ---------------------------- | ----------------------------------------------------------------------------------- |
 | `descriptive_stats.csv`    | Mean and SD of each biometric per risk class, class distribution                    |
-| `ml_results.csv`           | Macro-F1, per-class recall, ROC-AUC, Brier score for every classifier candidate     |
+| `ml_results.csv`           | Macro-F1 (cross-validated and test), per-class recall and precision, ROC-AUC, Brier score and train time for every classifier |
 | `feature_importance.csv`   | Feature importances for the tree-based classifiers                                  |
 | `simulation_results.csv`   | Every replication result across all three scenarios                                 |
-| `sensitivity_analysis.csv` | Mean response time across the theta and tau sweep                                   |
+| `sensitivity_analysis.csv` | Response time, re-routing events, false trigger rate and unreached high-risk patients across the theta and tau sweep |
 | `statistical_tests.csv`    | Wilcoxon statistics, Holm-Bonferroni adjusted p-values, effect sizes                |
 | `capacity_sweep.csv`       | Unprioritised-baseline coverage across cohort sizes (`scripts/capacity_sweep.py`) |
+| `gate_diagnostics.csv`     | Per-replication counts of each AND-gate condition (`scripts/gate_diagnostics.py`) |
+| `paired_intervals.csv`     | Mean paired difference in response time, its 95% CI and the pairs favouring each scenario (`scripts/supplementary_statistics.py`) |
+| `high_risk_incidence.csv`  | High-risk patients per shift and the share unreached, per seed and scenario (`scripts/supplementary_statistics.py`) |
 
 ### Figures (`results/figures/`)
 
@@ -133,8 +152,10 @@ uv run python main.py --stage simulate
 | `roc_curves.png`               | ROC curves for every classifier candidate                |
 | `feature_importance.png`       | Feature importance plot                                  |
 | `response_time_comparison.png` | Response time across the three routing scenarios         |
+| `paired_response_times.png`    | Mean response time per replication, paired by seed       |
 | `sensitivity_theta.png`        | Response time against the ML risk threshold theta        |
 | `sensitivity_tau.png`          | Response time against the time-since-visit threshold tau |
+| `sensitivity_theta_tradeoff.png` | Re-routing events and false trigger rate against theta |
 
 ## Testing and linting
 
